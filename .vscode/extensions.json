@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "antfu.unocss",
+    "dbaeumer.vscode-eslint",
+    "qwtel.sqlite-viewer",
+    "lete114.copy-object-path",
+    "vue.volar"
+  ]
+}
