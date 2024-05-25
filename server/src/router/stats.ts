@@ -1,6 +1,6 @@
 import { App } from '@tinyhttp/app'
 import adapter from '../database/adapter.js'
-import { CONSTANT, get_user_ip, urlHandler } from '../utils/public.js'
+import { CONSTANT, PERMISSION, get_user_ip, urlHandler } from '../utils/public.js'
 import type { Stats } from '../database/tables/stats.js'
 
 export const stats_router = new App()
@@ -92,7 +92,7 @@ stats_router.get('/list', async (req, res) => {
     return
   }
 
-  if (!req.user.permission.includes('/system')) {
+  if (!req.user.role.includes(PERMISSION.admin)) {
     const user_site = await req.db.UserSite.findAll({ where: { uid: req.user.id } })
     const user_site_ids = user_site.map(i => i.sid)
     if (!user_site_ids.includes(site.id)) {

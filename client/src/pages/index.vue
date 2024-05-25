@@ -2,6 +2,10 @@
 import Aside from '../components/aside.vue'
 import Header from '../components/header.vue'
 import Main from '../components/main.vue'
+
+defineProps<{
+  domain?: string
+}>()
 </script>
 
 <template>

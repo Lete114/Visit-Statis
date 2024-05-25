@@ -1,5 +1,5 @@
 <template>
-  <el-main class="bg-gray-600">
-    Main
+  <el-main class="bg-#fff">
+    <router-view />
   </el-main>
 </template>

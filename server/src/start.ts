@@ -19,11 +19,11 @@ async function test(force?: boolean) {
   const { Site, User, Role, Permission, UserSite, UserRole, RolePermission } = db
 
   // 创建权限
-  const premissionSystem = await Permission.create({ name: '/system' })
-  const premissionSite = await Permission.create({ name: '/site' })
+  const premissionSystem = await Permission.create({ name: '系统管理', url: '/system' })
+  const premissionSite = await Permission.create({ name: '网站管理', url: '/site' })
 
   // 创建角色
-  const roleAdmin = await Role.create({ name: 'admim' })
+  const roleAdmin = await Role.create({ name: 'admin' })
   const roleBasic = await Role.create({ name: 'basic' })
 
   // 创建用户

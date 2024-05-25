@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { router } from '../router'
+import { setPermission } from '../utils/permission';
 import { setToken } from '../utils/token'
 import github from './svg/github.vue'
 import user from './svg/user.vue'
 
 function on_exit() {
   setToken('')
+  setPermission('')
   router.push({ path: '/login' })
 }
 </script>
 
 <template>
-  <el-header class="bg-gray-500 flex flex-justify-center">
+  <el-header class="bg-#fff border-b-1px border-b-solid border-b-#dcdfe6 flex flex-justify-center">
     <div class="flex-1 flex flex-items-center flex-justify-start">
       <!--  -->
     </div>

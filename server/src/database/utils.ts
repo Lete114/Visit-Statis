@@ -25,7 +25,7 @@ export async function getUser(user: User) {
   const data = {
     ...user,
     role: roles.map(i => i.name),
-    permission: permissions.map(i => i.name),
+    permission: permissions.map(i => ({ name: i.name, url: i.url })),
     roles,
     permissions,
   }

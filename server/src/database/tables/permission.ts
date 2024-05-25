@@ -3,6 +3,7 @@ import { DataTypes, Model } from 'sequelize'
 
 export class Permission extends Model {
   declare id: string
+  declare url: string
   declare name: string
   declare create_time: string
   declare update_time: string
@@ -18,6 +19,10 @@ export function initPermission(sequelize: Sequelize) {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       comment: '权限ID',
+    },
+    url: {
+      type: DataTypes.STRING,
+      comment: '权限名',
     },
     name: {
       type: DataTypes.STRING,

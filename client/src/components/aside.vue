@@ -1,79 +1,50 @@
 <script setup lang="ts">
-import { markRaw, reactive } from 'vue'
-import {
-  DataLine,
-  Document,
-  HomeFilled,
-  Menu as IconMenu,
-  Setting,
-} from '@element-plus/icons-vue'
+import { reactive } from 'vue'
+import { getPermission } from '../utils/permission'
 
-const states = reactive({
+const permissions = getPermission()
+
+interface IMenu {
+  index: string
+  title: string
+  sub?: IMenu[]
+}
+
+interface IStates {
+  isCollapse: boolean
+  menu: IMenu[]
+}
+
+const states = reactive<IStates>({
   isCollapse: false,
-  menu: [
-    {
-      index: '1',
-      icon: markRaw(HomeFilled),
-      title: '首页',
-    },
-    {
-      index: '2',
-      icon: markRaw(DataLine),
-      title: '数据管理',
-      sub: [
-        {
-          index: '2-1',
-          title: '基础数据',
-        },
-        {
-          index: '2-2',
-          title: '图标呈现',
-        },
-      ],
-    },
-    {
-      index: '3',
-      icon: markRaw(IconMenu),
-      title: 'Navigator Two',
-    },
-    {
-      index: '4',
-      icon: markRaw(Document),
-      title: 'Navigator Three',
-    },
-    {
-      index: '5',
-      icon: markRaw(Setting),
-      title: 'Navigator Four',
-    },
-  ],
+  menu: [],
 })
 
-function handleOpen(key: string, keyPath: string[]) {
-  console.log(key, keyPath)
-}
-function handleClose(key: string, keyPath: string[]) {
-  console.log(key, keyPath)
-}
+permissions?.forEach((permission) => {
+  states.menu.push({
+    index: permission.url,
+    title: permission.name,
+  })
+})
+
 </script>
 
 <template>
-  <el-aside width="200px" class="bg-gray-100">
+  <el-aside width="200px" class="">
     <el-menu
       default-active="2"
-      class="el-menu-vertical-demo"
+      class="h-full"
       :collapse="states.isCollapse"
-      @open="handleOpen"
-      @close="handleClose"
+      router
     >
       <template v-for="item in states.menu" :key="item.index">
         <!-- if  有子菜单 -->
         <template v-if="item.sub">
           <el-sub-menu :index="item.index">
             <template #title>
-              <el-icon>
+              <!-- <el-icon>
                 <component :is="item.icon" />
-              </el-icon>
+              </el-icon> -->
               <span v-text="item.title" />
             </template>
             <!-- for -->
@@ -87,9 +58,9 @@ function handleClose(key: string, keyPath: string[]) {
         <!-- else 没有子菜单 -->
         <template v-else>
           <el-menu-item :index="item.index">
-            <el-icon>
+            <!-- <el-icon>
               <component :is="item.icon" />
-            </el-icon>
+            </el-icon> -->
             <template #title>
               {{ item.title }}
             </template>

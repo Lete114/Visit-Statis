@@ -10,6 +10,10 @@ export const colors = picocolors
 
 const { IP_HEADERS } = process.env
 
+export const PERMISSION = {
+  admin: 'admin',
+}
+
 export interface TConstant {
   DB_TYPE: 'sqlite' // | 'mysql'
   SECRET: string

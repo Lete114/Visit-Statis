@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import { setToken } from '../utils/token'
 import { request } from '../utils/request'
 import { is_mail } from '../utils/public'
+import { setPermission } from '../utils/permission'
 
 const router = useRouter()
 
@@ -63,8 +64,8 @@ function on_input() {
 }
 
 function reset() {
-  states.mail = ''
-  states.password = ''
+  // states.mail = ''
+  // states.password = ''
   states.captcha.text = ''
 }
 
@@ -80,6 +81,7 @@ async function on_login() {
       },
     })
     data.token && setToken(data.token)
+    data.permission && setPermission(data.permission)
     ElMessage({ type: 'success', message: '登录成功，欢迎您的使用 :)' })
     router.push({ path: '/' })
   }
