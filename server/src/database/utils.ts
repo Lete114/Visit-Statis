@@ -21,11 +21,14 @@ export async function getUser(user: User) {
 
   // 获取所有权限
   const permissions = await db.Permission.findAll({ where: { id: permissionIds } })
+  const permission = permissions
+    .sort((a, b) => new Date(b.create_time).getTime() - new Date(a.create_time).getTime())
+    .map(i => ({ name: i.name, url: i.url }))
 
   const data = {
     ...user,
     role: roles.map(i => i.name),
-    permission: permissions.map(i => ({ name: i.name, url: i.url })),
+    permission,
     roles,
     permissions,
   }
