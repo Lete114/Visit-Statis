@@ -1,6 +1,8 @@
 import { App } from '@tinyhttp/app'
+import { json } from 'milliparsec'
 import type { Site } from '../database/tables/site'
 import { PERMISSION } from '../utils/public'
+import { SITE_VALID_ENUM } from '../global'
 
 export const site_router = new App()
 
@@ -34,5 +36,61 @@ site_router.get('/list', async (req, res) => {
     list.push(...sites)
   }
 
-  res.json({ msg: 'get site list success', list })
+  res.json({ msg: 'get site list success', list: list.map(item => ({ ...item, valid: !!item.valid })) })
+})
+
+site_router.post('/add', json(), async (req, res) => {
+  try {
+    const { url } = req.body as { uuid: string, url: string }
+    const { host: domain } = new URL(url)
+
+    let uuid = ''
+    const site = await req.db.Site.findOne({ where: { domain } })
+    if (site) {
+      uuid = site.id
+    }
+    else {
+      const { id } = await req.db.Site.create({ domain })
+      uuid = id
+    }
+
+    res.send({ msg: 'add site success', uuid })
+  }
+  catch (error) {
+    console.error('add site error:', error)
+    res.status(500).send({ msg: 'add site error' })
+  }
+})
+
+site_router.post('/verify', json(), async (req, res) => {
+  try {
+    const { url } = req.body as { url: string }
+    const { host } = new URL(url)
+    const site = await req.db.Site.findOne({ where: { domain: host } })
+    if (!site) {
+      res.status(400).send({ msg: 'add verify error' })
+      return
+    }
+
+    const text = await fetch(url).then(r => r.text())
+
+    // 使用正则表达式提取 meta 标签
+    const metaRegex = /<meta\s+name="visit-stat-site-verify"\s+content="([0-9a-f-]{36})"\s*\/?>/i
+    const match = text.match(metaRegex)
+
+    if (match && site.id === match[1]) {
+      const where = { id: site.id, domain: host }
+      const data = { valid: SITE_VALID_ENUM.Valid }
+      await req.db.Site.update(data, { where })
+      await req.db.UserSite.create({ uid: req.user.id, sid: site.id })
+      res.send({ msg: 'add verify success' })
+    }
+    else {
+      res.status(400).send({ msg: 'meta tag not found or invalid' })
+    }
+  }
+  catch (error) {
+    console.error('add verify error:', error)
+    res.status(500).send({ msg: 'add verify error' })
+  }
 })

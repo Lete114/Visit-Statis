@@ -1,4 +1,5 @@
 import adapter from './database/adapter.js'
+import { SITE_VALID_ENUM } from './global.js'
 import server from './server.js'
 import { hash } from './utils/public.js'
 
@@ -31,7 +32,7 @@ async function test(force?: boolean) {
   const basic = await User.create({ password: await hash('basic@gmail.com'), mail: 'basic@gmail.com' })
 
   // 创建网站
-  const lete114_site = await Site.create({ domain: 'blog.imlete.cn' })
+  const lete114_site = await Site.create({ domain: 'blog.imlete.cn', valid: SITE_VALID_ENUM.Valid })
   const basic_site = await Site.create({ domain: 'basic.cn' })
   const basic_site2 = await Site.create({ domain: 'basic.com' })
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { onMounted, reactive } from 'vue'
+import { computed, onMounted, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
 import { setToken } from '../utils/token'
 import { request } from '../utils/request'
@@ -20,6 +20,10 @@ const states = reactive({
     loading: true,
     img: '',
   },
+})
+
+const is_verify = computed(() => {
+  return is_mail(states.mail) && states.password.length >= 8 && states.captcha.text.length === captcha_length
 })
 
 function on_to_register() {
@@ -55,7 +59,7 @@ function on_change_captcha() {
 }
 
 function on_input() {
-  if (is_mail(states.mail) && states.password.length >= 8 && states.captcha.text.length === captcha_length) {
+  if (is_verify.value) {
     states.disabled = false
 
     return
@@ -71,6 +75,9 @@ function reset() {
 
 async function on_login() {
   try {
+    if (!is_verify.value) {
+      return
+    }
     states.disabled = true
     const data = await request('/login', {
       method: 'POST',

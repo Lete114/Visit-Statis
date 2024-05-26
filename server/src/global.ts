@@ -27,9 +27,17 @@ declare module '@tinyhttp/app' {
       create_time: string
       update_time: string
       role: string[]
-      permission: string[]
+      permission: {
+        name: string
+        url: string
+      }[]
       roles: Role[]
       permissions: Permission[]
     }
   }
 }
+
+export const SITE_VALID_ENUM = {
+  Invalid: 0,
+  Valid: 1,
+} as const

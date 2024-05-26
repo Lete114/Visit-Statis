@@ -74,6 +74,12 @@ export function is_mail(mail: string) {
   return mailRegex.test(mail)
 }
 
+
+export function is_UUID(uuid) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
+
 interface IOptionsResolveServerUrls {
   https?: string
   port?: number

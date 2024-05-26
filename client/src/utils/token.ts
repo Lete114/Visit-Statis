@@ -1,13 +1,14 @@
 import workerTick from 'worker-tick'
 import { key as permission_key } from './permission'
+import { storage_get, storage_remove, storage_set } from './storage'
 
 const key = 'token'
 export function getToken() {
-  const token = localStorage.getItem(key)
+  const token = storage_get(key)
   return token
 }
 export function setToken(value: string) {
-  localStorage.setItem(key, value)
+  storage_set(key, value)
 }
 
 const ids: string[] = []
@@ -29,8 +30,8 @@ function expiration_time(token: string | null) {
 
     // 提前一分钟删除
     const id = workerTick.setTimeout(() => {
-      localStorage.removeItem(key)
-      localStorage.removeItem(permission_key)
+      storage_remove(key)
+      storage_remove(permission_key)
     }, advanceOneMinExpirationTimeMs)
 
     ids.push(id)

@@ -52,7 +52,7 @@ async function visit_stats(options: IVisitStatsOptions) {
 stats_router.get('/', async (req, res) => {
   const ip = get_user_ip(req)
   const referer = urlHandler(req.headers.referer!)
-  const { hostname: domain, pathname: id } = new URL(referer)
+  const { host: domain, pathname: id } = new URL(referer)
 
   const options = { id, ip, domain }
 

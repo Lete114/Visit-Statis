@@ -16,7 +16,7 @@ export function auth_domain(options: IAuthDomainOptions) {
 
       if (!referer) { return res.status(401).json({ msg: 'Not found referer' }) }
 
-      const { hostname: domain } = new URL(referer)
+      const { host: domain } = new URL(referer)
       // eslint-disable-next-line no-console
       console.log('domain', domain)
 
