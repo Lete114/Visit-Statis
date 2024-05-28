@@ -1,4 +1,6 @@
 import { App } from '@tinyhttp/app'
+import { Op } from 'sequelize'
+import { json } from 'milliparsec'
 import adapter from '../database/adapter.js'
 import { CONSTANT, PERMISSION, get_user_ip, urlHandler } from '../utils/public.js'
 import type { Stats } from '../database/tables/stats.js'
@@ -78,10 +80,11 @@ stats_router.get('/', async (req, res) => {
 })
 
 stats_router.get('/list', async (req, res) => {
-  const query = req.query as { domain: string, pageNum: string, pageSize: string }
+  const query = req.query as { keyword: string, domain: string, page_num: string, page_size: string }
+  const keyword = query.keyword
   const domain = query.domain
-  const pageNum = +query.pageNum || 1
-  const pageSize = +query.pageSize || 10
+  const page_num = +query.page_num || 1
+  const page_size = +query.page_size || 10
 
   let total = 0
   const stats_list: Stats[] = []
@@ -92,6 +95,7 @@ stats_router.get('/list', async (req, res) => {
     return
   }
 
+  // 如果当前用户不是管理员，则进入判断这个用户是否拥有该域名的访问权
   if (!req.user.role.includes(PERMISSION.admin)) {
     const user_site = await req.db.UserSite.findAll({ where: { uid: req.user.id } })
     const user_site_ids = user_site.map(i => i.sid)
@@ -101,12 +105,12 @@ stats_router.get('/list', async (req, res) => {
     }
   }
 
-  const where = { sid: site.id }
+  const where = { id: { [Op.like]: `%${keyword}%` }, sid: site.id }
   total = await req.db.Stats.count({ where })
   const stats = await req.db.Stats.findAll({
     where,
-    limit: pageSize,
-    offset: (pageNum - 1) * pageSize,
+    limit: page_size,
+    offset: (page_num - 1) * page_size,
   })
   stats_list.push(...stats)
 
@@ -118,4 +122,36 @@ stats_router.get('/list', async (req, res) => {
   })
 
   res.send({ msg: 'get stats list success', total, list })
+})
+
+stats_router.post('/remove', json(), async (req, res) => {
+  const { all = false, domain, ids = [] } = req.body as { all: boolean, domain: string, ids: string[] }
+
+  const site = await req.db.Site.findOne({ where: { domain } })
+  if (!site) {
+    res.status(403).send({ msg: '域名不存在' })
+    return
+  }
+
+  // 如果当前用户不是管理员，则进入判断这个用户是否拥有该域名的访问权
+  if (!req.user.role.includes(PERMISSION.admin)) {
+    const user_site = await req.db.UserSite.findAll({ where: { uid: req.user.id } })
+    const user_site_ids = user_site.map(i => i.sid)
+    if (!user_site_ids.includes(site.id)) {
+      res.status(403).send({ msg: '无权访问该域名' })
+    }
+  }
+
+  if (all) {
+    const stats_ids = await req.db.Stats.findAll({
+      where: { sid: site.id },
+      attributes: ['id'],
+    })
+    for (const stats of stats_ids) {
+      ids.push(stats.id)
+    }
+  }
+  await req.db.Stats.destroy({ where: { sid: site.id, id: ids } })
+
+  res.send({ msg: 'remove stats success' })
 })

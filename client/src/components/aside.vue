@@ -20,13 +20,17 @@ const states = reactive<IStates>({
   menu: [],
 })
 
+states.menu.push({
+  index: '/',
+  title: '首页',
+})
+
 permissions?.forEach((permission) => {
   states.menu.push({
     index: permission.url,
     title: permission.name,
   })
 })
-
 </script>
 
 <template>

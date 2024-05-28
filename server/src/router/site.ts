@@ -11,16 +11,16 @@ site_router.get('/', (_req, res) => {
 })
 
 site_router.get('/list', async (req, res) => {
-  const query = req.query as { pageNum: string, pageSize: string }
-  const pageNum = +query.pageNum || 1
-  const pageSize = +query.pageSize || 10
+  const query = req.query as { page_num: string, page_size: string }
+  const page_num = +query.page_num || 1
+  const page_size = +query.page_size || 10
 
   const list: Site[] = []
 
   if (req.user.role.includes(PERMISSION.admin)) {
     const sites = await req.db.Site.findAll({
-      limit: pageSize,
-      offset: (pageNum - 1) * pageSize,
+      limit: page_size,
+      offset: (page_num - 1) * page_size,
     })
     list.push(...sites)
   }
@@ -30,8 +30,8 @@ site_router.get('/list', async (req, res) => {
     const where = { id: user_site_ids }
     const sites = await req.db.Site.findAll({
       where,
-      limit: pageSize,
-      offset: (pageNum - 1) * pageSize,
+      limit: page_size,
+      offset: (page_num - 1) * page_size,
     })
     list.push(...sites)
   }
