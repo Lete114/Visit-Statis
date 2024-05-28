@@ -8,7 +8,7 @@ import adapter from '../database/adapter'
 
 export function auth(options: IAuthOptions) {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const isMatch = micromatch.isMatch(req.url, options.white_list || [])
+    const isMatch = micromatch.isMatch(req.path, options.white_list || [])
     // 如果请求的路由在白名单中，则跳过身份验证
     if (isMatch) { return next() }
 

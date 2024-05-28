@@ -2,7 +2,7 @@ import { App } from '@tinyhttp/app'
 import { Op } from 'sequelize'
 import { json } from 'milliparsec'
 import adapter from '../database/adapter.js'
-import { CONSTANT, PERMISSION, get_user_ip, urlHandler } from '../utils/public.js'
+import { CONSTANT, PERMISSION, get_user_ip, isUrlRegExp, urlHandler } from '../utils/public.js'
 import type { Stats } from '../database/tables/stats.js'
 
 export const stats_router = new App()
@@ -77,6 +77,54 @@ stats_router.get('/', async (req, res) => {
   }
 
   res.json(data)
+})
+
+stats_router.all('/get', json(), async (req, res) => {
+  let urls_raw: string[] = []
+
+  if (req.method === 'GET') {
+    const query = (req.query.urls || '') as string
+    urls_raw = query.split(',')
+  }
+  if (req.method === 'POST') {
+    const body = (req.body.urls || []) as string[]
+    urls_raw = body
+  }
+
+  if (!urls_raw.length) {
+    res.send({ msg: 'Domain name does not exist' })
+    return
+  }
+
+  const { host: domain } = new URL(urlHandler(urls_raw[0]))
+  const site = await req.db.Site.findOne({ where: { domain } })
+  if (!site) {
+    res.send({ msg: 'Domain name does not exist' })
+    return
+  }
+
+  const urls = urls_raw.filter(url => isUrlRegExp.test(url) && new URL(url).host === domain)
+    .slice(0, 20)
+    .map(url => ([[new URL(url).pathname], url]))
+
+  const fromEntries = Object.fromEntries(urls)
+  const ids = Object.keys(fromEntries)
+  const where = { id: ids, sid: site.id }
+  const result = await req.db.Stats.findAll({ where })
+
+  const visits = result.map((item) => {
+    const data = {
+      url: fromEntries[item.id],
+      total_visitors: getIP(item.total_visitors),
+      total_visits: item.total_visits,
+    }
+    return data
+  })
+
+  res.send({
+    msg: 'get success',
+    visits,
+  })
 })
 
 stats_router.get('/list', async (req, res) => {

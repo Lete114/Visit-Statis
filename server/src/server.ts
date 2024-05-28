@@ -42,13 +42,15 @@ function server(options: IOptions) {
   const auth_domain_options: IAuthDomainOptions = {
     intercept_list: [
       '/stats',
-    ],
+      '/stats/get',
+    ]
   }
   const auth_options: IAuthOptions = {
     white_list: [
       '/',
       '/user',
       '/stats',
+      '/stats/get',
       '/captcha',
       '/send_mail',
       '/login',

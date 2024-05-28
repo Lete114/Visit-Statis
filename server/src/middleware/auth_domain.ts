@@ -7,7 +7,7 @@ import type { IAuthDomainOptions } from '../global'
 export function auth_domain(options: IAuthDomainOptions) {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const isMatch = micromatch.isMatch(req.url, options.intercept_list || [])
+      const isMatch = micromatch.isMatch(req.path, options.intercept_list || [])
       // 如果请求的路由在白名单中，则跳过身份验证
       if (!isMatch) { return next() }
       const referer = req.headers.referer
